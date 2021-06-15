@@ -101,13 +101,13 @@ var/global/list/sec_closets_list = list()
 	for(var/obj/machinery/vending/V in machines)
 		if(!prob(40))
 			continue
-		for(var/datum/data/vending_product/VP in V.product_records)
+		for(var/datum/stored_item/vending_product/VP in V.product_records)
 			if(!prob(30))
 				continue
 			VP.amount = rand(0, VP.amount)
 			VP.price = rand(0, VP.amount**2)
-			message_admins("RoundStart Event: [VP.product_name] has changed amount and price in [V] [COORD(V)].")
-			log_game("RoundStart Event: [VP.product_name] has changed amount and price in [V] [COORD(V)].")
+			message_admins("RoundStart Event: [VP.item_name] has changed amount and price in [V] [COORD(V)].")
+			log_game("RoundStart Event: [VP.item_name] has changed amount and price in [V] [COORD(V)].")
 
 /datum/event/roundstart/apc/start()
 	for(var/obj/machinery/power/apc/A in apc_list)

@@ -15,6 +15,81 @@
 	var/access = list()
 	access = access_crate_cash
 	var/worth = 0
+	var/initial_name = "Cas"
+
+/obj/item/weapon/spacecash/attackby(obj/item/weapon/W as obj, mob/user as mob)
+	if(istype(W, /obj/item/weapon/spacecash))
+		if(istype(W, /obj/item/weapon/spacecash/ewallet)) return 0
+
+		var/obj/item/weapon/spacecash/SC = W
+
+		SC.adjust_worth(src.worth)
+		if(istype(user, /mob/living/carbon/human))
+			var/mob/living/carbon/human/h_user = user
+
+			h_user.drop_from_inventory(src)
+			h_user.drop_from_inventory(SC)
+			h_user.put_in_hands(SC)
+		to_chat(user, "<span class='notice'>You combine the [initial_name]s to a bundle of [SC.worth] [initial_name]s.</span>")
+		qdel(src)
+
+/obj/item/weapon/spacecash/update_icon()
+	overlays.Cut()
+	name = "[worth] [initial_name]\s"
+	if(worth in list(1000,500,200,100,50,20,10,1))
+		icon_state = "spacecash[worth]"
+		desc = "It's worth [worth] [initial_name]s."
+		return
+	var/sum = src.worth
+	var/num = 0
+	for(var/i in list(1000,500,200,100,50,20,10,1))
+		while(sum >= i && num < 50)
+			sum -= i
+			num++
+			var/image/banknote = image('icons/obj/economy.dmi', "spacecash[i]")
+			var/matrix/M = matrix()
+			M.Translate(rand(-6, 6), rand(-4, 8))
+			M.Turn(pick(-45, -27.5, 0, 0, 0, 0, 0, 0, 0, 27.5, 45))
+			banknote.transform = M
+			src.overlays += banknote
+	if(num == 0) // Less than one thaler, let's just make it look like 1 for ease
+		var/image/banknote = image('icons/obj/economy.dmi', "spacecash1")
+		var/matrix/M = matrix()
+		M.Translate(rand(-6, 6), rand(-4, 8))
+		M.Turn(pick(-45, -27.5, 0, 0, 0, 0, 0, 0, 0, 27.5, 45))
+		banknote.transform = M
+		src.overlays += banknote
+	src.desc = "They are worth [worth] [initial_name]s."
+
+/obj/item/weapon/spacecash/proc/adjust_worth(adjust_worth = 0, update = 1)
+	worth += adjust_worth
+	if(worth > 0)
+		if(update)
+			update_icon()
+		return worth
+	else
+		qdel(src)
+		return 0
+
+/obj/item/weapon/spacecash/proc/set_worth(new_worth = 0, update = 1)
+	worth = max(0, new_worth)
+	if(update)
+		update_icon()
+	return worth
+
+/obj/item/weapon/spacecash/attack_self()
+	var/amount = input(usr, "How many [initial_name]s do you want to take? (0 to [src.worth])", "Take Money", 20) as num
+	if(!src || QDELETED(src))
+		return
+	amount = round(clamp(amount, 0, src.worth))
+
+	if(!amount)
+		return
+
+	adjust_worth(-amount)
+	var/obj/item/weapon/spacecash/SC = new (usr.loc)
+	SC.set_worth(amount)
+	usr.put_in_hands(SC)
 
 /obj/item/weapon/spacecash/atom_init()
 	. = ..()
@@ -22,7 +97,7 @@
 
 /obj/item/weapon/spacecash/c1
 	name = "1 credit chip"
-	icon_state = "spacecash"
+	icon_state = "spacecash1"
 	desc = "It's worth 1 credit."
 	worth = 1
 

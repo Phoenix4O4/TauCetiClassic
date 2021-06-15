@@ -524,7 +524,7 @@
 				if(INTERACTION_VENDING_CONTRABAND_MODE)
 					A.extended_inventory = !A.extended_inventory
 				if(INTERACTION_VENDING_ACCOUNT_VERIFY)
-					A.check_accounts = !A.check_accounts
+					A.customer_account = !A.customer_account
 		if(istype(hackobj, /obj/machinery/bot))
 			switch(interaction_type)
 				if(INTERACTION_ANYBOT_INTERFACE_LOCK) //Unlock
@@ -952,7 +952,7 @@
 					dat += "<font color=#BFBFBF>Shoot Item</font> (Function wasn't unlocked) <br>"
 				dat += "<a href='byond://?src=\ref[src];software=interaction;interactwith=[INTERACTION_VENDING_SPEAK];sub=0'>Speak</a> <br>"
 				dat += "<a href='byond://?src=\ref[src];software=interaction;interactwith=[INTERACTION_VENDING_CONTRABAND_MODE];sub=0'>Lock/Unlock Hidden Items</a> (Currently [Temp.extended_inventory ? "Shown" : "Hidden"]) <br>"
-				dat += "<a href='byond://?src=\ref[src];software=interaction;interactwith=[INTERACTION_VENDING_ACCOUNT_VERIFY];sub=0'>Toggle Account Verifying</a> (Actually, just make everything silently free. Currently [Temp.check_accounts ? "Active" : "Disabled"]) <br>"
+				dat += "<a href='byond://?src=\ref[src];software=interaction;interactwith=[INTERACTION_VENDING_ACCOUNT_VERIFY];sub=0'>Toggle Account Verifying</a> (Actually, just make everything silently free. Currently [Temp.customer_account ? "Active" : "Disabled"]) <br>"
 			if(istype(hackobj, /obj/machinery/bot))
 				var/botchecked = 0 //Should we name bot as "Unknown"?
 				if(istype(hackobj, /obj/machinery/bot/secbot))

@@ -131,9 +131,6 @@
 /mob/living/silicon/robot/syndicate/GetAccess()
 	return list(access_maint_tunnels, access_syndicate, access_external_airlocks) //syndicate basic access
 
-/obj/item/proc/GetID()
-	return null
-
 /obj/proc/check_access(atom/movable/AM)
 	if(istype(src, /obj/machinery))
 		var/obj/machinery/Machine = src
@@ -518,10 +515,13 @@
 /proc/get_all_job_icons() //For all existing HUD icons
 	return joblist + list("Prisoner")
 
+/obj/proc/GetID()
+	return null
+
 /obj/proc/GetJobName() //Used in secHUD icon generation
 	if (!istype(src, /obj/item/device/pda) && !istype(src,/obj/item/weapon/card/id))
 		return
-
+	var/obj/item/weapon/card/id/I = GetID()
 	var/jobName
 	var/alt
 	if(istype(src, /obj/item/device/pda))
@@ -530,7 +530,7 @@
 			jobName = P.id.rank
 			alt = P.id.assignment
 	if(istype(src, /obj/item/weapon/card/id))
-		var/obj/item/weapon/card/id/I = src
+		GetID(src)
 		jobName = I.rank
 		alt = I.assignment
 	if(istype(src, /obj/item/weapon/card/id/syndicate))
@@ -569,3 +569,17 @@
 			"accesses" = accesses
 		))
 	return retval
+
+/atom/movable/proc/GetIdCard()
+	return null
+
+/mob/living/carbon/human/GetIdCard()
+	if(get_active_hand())
+		var/obj/item/I = get_active_hand()
+		var/id = I.GetID()
+		if(id)
+			return id
+	if(wear_id)
+		var/id = wear_id.GetID()
+		if(id)
+			return id

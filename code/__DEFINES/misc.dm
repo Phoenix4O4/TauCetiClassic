@@ -263,3 +263,8 @@
 #define REGION_SUPPLY		6
 #define REGION_COMMAND		7
 #define REGION_CENTCOMM		8
+
+// Vending stuff
+#define CAT_NORMAL 1
+#define CAT_HIDDEN 2
+#define CAT_COIN   4

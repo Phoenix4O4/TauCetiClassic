@@ -12,24 +12,23 @@ var/const/VENDING_WIRE_SHUT_UP    = 16
 	var/obj/machinery/vending/V = holder
 	return V.panel_open
 
-/datum/wires/vending/additional_checks_and_effects(mob/living/user)
+/datum/wires/vending/interactable(mob/user)
 	var/obj/machinery/vending/V = holder
-
-	if(V.stat & (BROKEN|NOPOWER))
+	if(iscarbon(user) && V.seconds_electrified && V.shock(user, 100))
 		return FALSE
-
-	if((world.time < V.electrified_until || V.electrified_until < 0) && !issilicon(user))
-		if(V.shock(user, 100))
-			return TRUE
+	if(V.panel_open)
+		return TRUE
+	return FALSE
 
 /datum/wires/vending/get_status()
 	var/obj/machinery/vending/V = holder
-	. += ..()
-	. += "The orange light is [(world.time < V.electrified_until || V.electrified_until < 0) ? "off" : "on"]."
+	. = ..()
+	. += "The orange light is [V.seconds_electrified ? "on" : "off"]."
 	. += "The red light is [V.shoot_inventory ? "off" : "blinking"]."
-	. += "The green light is [V.extended_inventory ? "on" : "off"]."
-	. += "The [V.scan_id ? "purple" : "yellow"] light is on."
+	. += "The green light is [(V.categories & CAT_HIDDEN) ? "on" : "off"]."
+	. += "A [V.scan_id ? "purple" : "yellow"] light is on."
 	. += "The blue light is [V.shut_up ? "off" : "on"]."
+
 
 /datum/wires/vending/update_cut(index, mended)
 	var/obj/machinery/vending/V = holder
@@ -37,23 +36,22 @@ var/const/VENDING_WIRE_SHUT_UP    = 16
 	switch(index)
 		if(VENDING_WIRE_THROW)
 			V.shoot_inventory = !mended
-			V.update_wires_check()
 
 		if(VENDING_WIRE_CONTRABAND)
-			V.set_extended_inventory(!mended)
+			V.categories &= ~CAT_HIDDEN
 
 		if(VENDING_WIRE_ELECTRIFY)
 			if(mended)
-				V.electrified_until = 0
+				V.seconds_electrified = 0
 			else
-				V.electrified_until = -1
+				V.seconds_electrified = -1
 
 		if(VENDING_WIRE_IDSCAN)
-			V.scan_id = TRUE
+			V.scan_id = 1
 
 		if(VENDING_WIRE_SHUT_UP)
 			V.shut_up = !mended
-			V.update_wires_check()
+	..()
 
 /datum/wires/vending/update_pulsed(index)
 	var/obj/machinery/vending/V = holder
@@ -61,17 +59,27 @@ var/const/VENDING_WIRE_SHUT_UP    = 16
 	switch(index)
 		if(VENDING_WIRE_THROW)
 			V.shoot_inventory = !V.shoot_inventory
-			V.update_wires_check()
 
 		if(VENDING_WIRE_CONTRABAND)
-			V.set_extended_inventory(!V.extended_inventory)
+			V.categories ^= CAT_HIDDEN
 
 		if(VENDING_WIRE_ELECTRIFY)
-			V.electrified_until = world.time + 30 SECONDS
+			V.seconds_electrified = 30
 
 		if(VENDING_WIRE_IDSCAN)
 			V.scan_id = !V.scan_id
 
 		if(VENDING_WIRE_SHUT_UP)
 			V.shut_up = !V.shut_up
-			V.update_wires_check()
+	..()
+
+
+/datum/wires/proc/Interact(mob/user)
+	if(user && istype(user) && holder && interactable(user))
+		tgui_interact(user)
+
+/**
+ * Base proc, intended to be overriden. Wire datum specific checks you want to run before the TGUI is shown to the user should go here.
+ */
+/datum/wires/proc/interactable(mob/user)
+	return TRUE

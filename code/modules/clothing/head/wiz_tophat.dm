@@ -35,10 +35,10 @@ var/global/list/tophats_list = list()
 
 /obj/machinery/vending/tophat_vend/proc/get_mousetrap()
 	var/obj/item/device/assembly/mousetrap/MS = null
-	for(var/datum/data/vending_product/R in shuffle(src.hidden_records))
+	for(var/datum/stored_item/vending_product/R in shuffle(src.contraband))
 		if(R.amount <= 0) //Try to use a record that actually has something to dump.
 			continue
-		var/dump_path = R.product_path
+		var/dump_path = R.item_path
 		if(!dump_path)
 			continue
 
@@ -51,10 +51,10 @@ var/global/list/tophats_list = list()
 
 /obj/machinery/vending/tophat_vend/proc/get_bunnymonkey()
 	var/mob/living/carbon/monkey/M = null
-	for(var/datum/data/vending_product/R in shuffle(src.product_records))
+	for(var/datum/stored_item/vending_product/R in shuffle(src.product_records))
 		if(R.amount <= 0) //Try to use a record that actually has something to dump.
 			continue
-		var/dump_path = R.product_path
+		var/dump_path = R.item_path
 		if(!dump_path)
 			continue
 

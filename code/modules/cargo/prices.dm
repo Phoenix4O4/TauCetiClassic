@@ -19,7 +19,7 @@
 		if(my_total_price)
 			my_total_price /= 2
 	if(product_records && product_records.len)
-		for(var/datum/data/vending_product/VP in product_records)
+		for(var/datum/stored_item/vending_product/VP in product_records)
 			my_total_price += VP.amount * VP.price
 	return my_total_price
 
