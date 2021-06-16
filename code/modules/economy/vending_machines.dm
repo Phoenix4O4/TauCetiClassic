@@ -233,7 +233,7 @@
 	light_power_on = 1
 	light_color = "#e6fff2"
 	icon_deny = "wallmed-deny"
-	density = 0 //It is wall-mounted, and thus, not dense. --Superxpdude
+	density = FALSE //It is wall-mounted, and thus, not dense. --Superxpdude
 	products = list(/obj/item/stack/medical/bruise_pack = 2,/obj/item/stack/medical/ointment = 2,/obj/item/weapon/reagent_containers/hypospray/autoinjector = 4,/obj/item/device/healthanalyzer = 1,
 				/obj/item/stack/medical/suture = 2)
 	contraband = list(/obj/item/weapon/reagent_containers/syringe/antitoxin = 4,/obj/item/weapon/reagent_containers/syringe/antiviral = 4,/obj/item/weapon/reagent_containers/pill/tox = 1)
@@ -246,7 +246,7 @@
 	light_color = "#e6fff2"
 	icon_deny = "wallmed-deny"
 	req_access = list(5)
-	density = 0 //It is wall-mounted, and thus, not dense. --Superxpdude
+	density = FALSE //It is wall-mounted, and thus, not dense. --Superxpdude
 	products = list(/obj/item/weapon/reagent_containers/hypospray/autoinjector = 5,/obj/item/weapon/reagent_containers/syringe/antitoxin = 3,/obj/item/stack/medical/bruise_pack = 3,
 					/obj/item/stack/medical/ointment =3,/obj/item/device/healthanalyzer = 3, /obj/item/stack/medical/suture = 2)
 	contraband = list(/obj/item/weapon/reagent_containers/pill/tox = 3)
@@ -729,3 +729,25 @@
 	product_slogans = "The cheaper the crook, the gaudier the patter.;Dead men are heavier than broken hearts.;Life is a bucket of shit with a barbed wire handle.;After all, you are only an immortal until someone manages to kill you. After that, you were just long-lived.;The rain fell like dead bullets.;Though I often run out of courage and good sense, stubbornness keeps me going."
 	product_ads = "Keep your mind too open, and you never know what might walk in.;After all, you are only an immortal until someone manages to kill you. After that, you were just long-lived.;If you don't trust anyone, they can't let you down.;Wait. You've got principles? We'll have to update your file.;I always feel most alive when everything else is dying all around me."
 	req_access = list(68)
+
+/obj/machinery/vending/donut
+	name = "Monkin' Donuts"
+	desc = "A donut vendor provided by Robust Industries, LLC."
+	product_slogans = "Test your robustness!;Replenish your robustness!"
+	product_ads = "Homer Simpson approves!;Each of us is a little cop!;Hope you're hunger!;Over 1 million donuts sold!;Try our new Robust Coffee!"
+	icon_state = "donuts"
+	products = list(/obj/item/weapon/reagent_containers/food/snacks/donut/normal = 5,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/classic = 5,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/choco = 5,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/banana = 5,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/berry = 5,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/cherryjelly = 5)
+	prices = list(/obj/item/weapon/reagent_containers/food/snacks/donut/normal = 3,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/classic = 3,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/choco = 3,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/banana = 3,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/berry = 3,
+					/obj/item/weapon/reagent_containers/food/snacks/donut/cherryjelly = 3)
+	contraband = list(/obj/item/weapon/reagent_containers/food/snacks/donut/syndie = 5)
+	premium = list(/obj/item/weapon/storage/fancy/donut_box = 3)
+	refill_canister = /obj/item/weapon/vending_refill/donut

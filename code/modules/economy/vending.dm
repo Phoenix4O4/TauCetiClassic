@@ -81,6 +81,10 @@
 /obj/machinery/vending/atom_init()
 	. = ..()
 	wires = new(src)
+	src.anchored = TRUE
+	component_parts = list()
+	component_parts += new /obj/item/weapon/circuitboard/vendor(null)
+
 	if(product_slogans)
 		slogan_list += splittext(product_slogans, ";")
 
@@ -193,7 +197,6 @@ GLOBAL_LIST_EMPTY(vending_products)
 		return
 
 	else if(is_wire_tool(W) && panel_open && wires.interact(user))
-		attack_hand(user)
 		return
 
 	else if(istype(W, /obj/item/weapon/coin) && premium.len > 0)
@@ -251,6 +254,23 @@ GLOBAL_LIST_EMPTY(vending_products)
 				return
 		..()
 
+/obj/machinery/vending/default_deconstruction_crowbar(obj/item/O)
+	var/list/all_products = CAT_NORMAL + CAT_HIDDEN + CAT_COIN
+	for(var/datum/stored_item/vending_product/machine_content in all_products)
+		while(machine_content.amount !=0)
+			var/safety = 0 //to avoid infinite loop
+			for(var/obj/item/weapon/vending_refill/VR in component_parts)
+				safety++
+				if(VR.charges < initial(VR.charges))
+					VR.charges++
+					machine_content.amount--
+					if(!machine_content.amount)
+						break
+				else
+					safety--
+			if(safety <= 0)
+				break
+	..()
 /**
  *  Receive payment with cashmoney.
  *
@@ -448,7 +468,7 @@ GLOBAL_LIST_EMPTY(vending_products)
 		var/obj/item/weapon/spacecash/S = H.get_active_hand()
 		if(istype(S))
 			data["userMoney"] = S.worth
-			data["guestNotice"] = "Accepting [S.initial_name]. You have: [S.worth]₮."
+			data["guestNotice"] = "Accepting [S.initial_name]. You have: $[S.worth]."
 		else if(istype(C))
 			var/datum/money_account/A = get_account(C.associated_account_number)
 			if(istype(A))
