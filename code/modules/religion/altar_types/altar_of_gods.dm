@@ -11,9 +11,6 @@
 	can_buckle = TRUE
 	buckle_lying = TRUE
 
-	var/type_of_sects = /datum/religion_sect/preset/chaplain
-	var/custom_sect_type = /datum/religion_sect/custom/chaplain
-
 	var/datum/religion_rites/performing_rite
 	var/datum/religion/religion //easy access
 
@@ -54,10 +51,8 @@
 	var/msg = ""
 	if(isobserver(user))
 		can_i_see = TRUE
-	else if(isliving(user))
-		var/mob/living/L = user
-		if(L.mind && L.mind.holy_role)
-			can_i_see = TRUE
+	else if(user.my_religion == religion)
+		can_i_see = TRUE
 
 	if(!can_i_see)
 		return
@@ -114,7 +109,7 @@
 
 	var/sacrificed = FALSE
 	for(var/obj/item/I in loc)
-		if(I.flags & ABSTRACT)
+		if(I.flags & ABSTRACT || HAS_TRAIT(I, TRAIT_NO_SACRIFICE))
 			continue
 
 		var/max_points = 0
@@ -141,7 +136,7 @@
 		return TRUE
 	return FALSE
 
-/obj/structure/altar_of_gods/attack_hand(mob/living/carbon/human/user)
+/obj/structure/altar_of_gods/attack_hand(mob/user)
 	if(can_buckle && buckled_mob && istype(user))
 		user_unbuckle_mob(user)
 		return
@@ -189,6 +184,8 @@
 		data["faith_reactions"] = get_reactions_list()
 		data["can_talismaning"] = istype(user.get_active_hand(), /obj/item/weapon/paper/talisman)
 
+	data["holds_religious_tool"] = istype(user.get_active_hand(), religion.religious_tool_type)
+
 	return data
 
 /obj/structure/altar_of_gods/tgui_static_data(mob/user)
@@ -222,15 +219,20 @@
 
 	// Assume, that if we've gotten this far, it's a succesful tool use.
 	. = TRUE
-	if(istype(I, /obj/item/weapon/nullrod))
-		interact_nullrod(I, user)
+	if(!religion && user?.my_religion?.religious_tool_type && istype(I, user.my_religion.religious_tool_type))
+		religion = user.my_religion
+		religion.altars |= src
+		interact_religious_tool(I, user)
 		return
 
-	else if(istype(I, /obj/item/weapon/storage/bible))
-		interact_bible(I, user)
+	if(!religion)
 		return
 
-	else if(istype(I, /obj/item/weapon/paper/talisman))
+	if(istype(I, religion.religious_tool_type))
+		interact_religious_tool(I, user)
+		return
+
+	if(istype(I, /obj/item/weapon/paper/talisman))
 		interact_talisman(I, user)
 		return
 
@@ -238,6 +240,9 @@
 	return FALSE
 
 /obj/structure/altar_of_gods/proc/perform_rite(mob/user, rite_name)
+	if(!istype(user.get_active_hand(), religion.religious_tool_type))
+		return
+
 	if(!rite_name)
 		return
 
@@ -276,26 +281,23 @@
 	religion.adjust_favor(-R.favor_cost*2)
 	religion.adjust_piety(-R.piety_cost*2)
 
-/obj/structure/altar_of_gods/proc/interact_nullrod(obj/item/I, mob/user)
-	if(!religion && user.my_religion)
-		religion = user.my_religion
-		religion.altars |= src
-
+/obj/structure/altar_of_gods/proc/interact_religious_tool(obj/item/I, mob/user)
 	if(!religion)
 		return
 
 	tgui_interact(user)
 
-/obj/structure/altar_of_gods/proc/sect_select(mob/user, sect_type)
-	if(!sect_type)
+/obj/structure/altar_of_gods/proc/sect_select(mob/living/user, sect_type)
+	if(!istype(user.get_active_hand(), religion.religious_tool_type))
 		return
+
+	if(!sect_type || chosen_aspect)
+		return
+
+	chosen_aspect = TRUE
 
 	religion.sect = new sect_type
 	religion.sect.on_select(user, religion)
-	chosen_aspect = TRUE
-
-/obj/structure/altar_of_gods/proc/interact_bible(obj/item/I, mob/user)
-	return
 
 /obj/structure/altar_of_gods/proc/interact_talisman(obj/item/weapon/paper/talisman/T, mob/user)
 	if(!religion)
@@ -389,7 +391,7 @@
 	return reactions
 
 /obj/structure/altar_of_gods/attackby(obj/item/C, mob/user, params)
-	if(iswrench(C))
+	if(iswrenching(C))
 		if(!user.is_busy(src) && C.use_tool(src, user, 40, volume = 50))
 			anchored = !anchored
 			visible_message("<span class='warning'>[src] has been [anchored ? "secured to the floor" : "unsecured from the floor"] by [user].</span>")
@@ -405,13 +407,8 @@
 
 	return ..()
 
-/obj/structure/altar_of_gods/CanPass(atom/movable/mover, turf/target, height=0, air_group=0)
+/obj/structure/altar_of_gods/CanPass(atom/movable/mover, turf/target, height=0)
 	if(istype(mover) && mover.checkpass(PASSTABLE))
-		return TRUE
-	return ..()
-
-/obj/structure/altar_of_gods/CheckExit(atom/movable/AM, target)
-	if(istype(AM) && AM.checkpass(PASSTABLE))
 		return TRUE
 	return ..()
 
