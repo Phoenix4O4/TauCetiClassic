@@ -14,6 +14,7 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /turf/simulated/floor/holofloor/grass/atom_init_late()
+	..()
 	update_icon()
 	for(var/direction in cardinal)
 		if(istype(get_step(src,direction),/turf/simulated/floor))
@@ -81,19 +82,6 @@
 	desc = "Because you really needed another excuse to punch your crewmates."
 	icon_state = "boxing"
 	item_state = "boxing"
-
-/obj/structure/window/reinforced/holowindow
-	flags = NODECONSTRUCT | ON_BORDER
-
-/obj/structure/window/reinforced/holowindow/attackby(obj/item/W, mob/user)
-	if(isscrewing(W))
-		to_chat(user, ("<span class='notice'>It's a holowindow, you can't unfasten it!</span>"))
-	else if(isprying(W))
-		to_chat(user, ("<span class='notice'>It's a holowindow, you can't pry it!</span>"))
-	else
-		return ..()
-
-/obj/structure/window/reinforced/holowindow/disappearing
 
 /obj/machinery/door/window/holowindoor
 	flags = NODECONSTRUCT | ON_BORDER
@@ -282,7 +270,7 @@
 
 	eventstarted = 1
 
-	for(var/obj/structure/window/reinforced/holowindow/disappearing/W in currentarea)
+	for(var/obj/structure/window/thin/reinforced/holowindow/disappearing/W in currentarea)
 		qdel(W)
 
 	for(var/mob/M in currentarea)

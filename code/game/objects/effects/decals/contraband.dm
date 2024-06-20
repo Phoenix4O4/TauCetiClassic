@@ -44,6 +44,10 @@
 
 	AddElement(/datum/element/beauty, 300)
 
+/obj/item/weapon/poster/calendar/atom_init(mapload, obj/structure/sign/poster/new_poster_structure)
+	. = ..()
+	resulting_poster = new /obj/structure/sign/poster/calendar(src)
+
 // The poster sign/structure
 
 /obj/structure/sign/poster
@@ -164,6 +168,21 @@
 	name = "random poster" // could even be ripped
 	icon_state = "random_anything"
 	random_basetype = /obj/structure/sign/poster
+
+/obj/structure/sign/poster/calendar
+	name = "2224 calendar"
+	icon_state = "calendar"
+	desc = "Brand new calendar for year 2224."
+
+/obj/structure/sign/poster/sivtsev
+	name = "sivtsev table"
+	icon_state = "sivtsev"
+	desc = "Таблица Сивцева для проверки остроты зрения."
+
+/obj/structure/sign/poster/olympic_games
+	name = "2214 Winter Olympics"
+	icon_state = "olympic"
+	desc = "At the bottom of the poster it says: «The XLVII Olympic Winter Games. Venus 2214»."
 
 /obj/structure/sign/poster/contraband
 	poster_item_name = "contraband poster"
@@ -601,6 +620,11 @@
 	desc = "This informational poster teaches the viewer what carbon dioxide is."
 	icon_state = "poster35_legit"
 
+/obj/structure/sign/poster/official/cosmonautics_day
+	name = "Yuri Gagarin"
+	desc = "April 12 is the International Day of Human Space Flight."
+	icon_state = "poster36_legit"
+
 /obj/structure/sign/poster/revolution
 	poster_item_name = "revolution poster"
 	poster_item_desc = "Some weird poster shaming Nanotrasen for things they never did... or did they?"
@@ -640,11 +664,15 @@
 	else if(jobban_isbanned(user, ROLE_REV) || jobban_isbanned(user, "Syndicate"))
 		to_chat(user, "<span class='bold warning'>You can't overcome the guilt to join the revolutionaries. (You are banned.)</span>")
 		return
-	else if(!isrevhead(user) || !isrev(user))
+	else if(!isrevhead(user) && !isrev(user))
 		rev.convert_revolutionare(user)
 
 /obj/structure/sign/poster/revolution/examine(mob/user)
 	. = ..()
+	if(ruined)
+		return
+	if(!ishuman(user))
+		return
 	to_chat(user, "<span class='notice'>The image on the poster feels memetic. It makes you feel things you shouldn't be feeling staring on a QR code wannabe.</span>")
 	var/choice = tgui_alert(user, "Does this inspire me to join the cause?", "You think...", list("No!","Yes!"))
 	if(choice == "Yes!")

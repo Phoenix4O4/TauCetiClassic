@@ -277,7 +277,7 @@
 			if(isnull(V)) // Trying to figure out a runtime error that keeps repeating
 				CRASH("virus2 nulled before calling activate()")
 			else
-				V.activate(src)
+				V.on_process(src)
 			// activate may have deleted the virus
 			if(!V)
 				continue
@@ -349,7 +349,7 @@
 			if( health <= 20 && prob(1) )
 				emote("gasp")
 			if(!reagents.has_reagent("inaprovaline"))
-				adjustOxyLoss(1)
+				losebreath = max(losebreath + 1, 2)
 			Paralyse(3)
 		if(halloss > 100)
 			to_chat(src, "<span class='notice'>You're in too much pain to keep going...</span>")

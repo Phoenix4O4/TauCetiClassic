@@ -63,7 +63,7 @@
 	message = add_period(message)
 
 	//TODO: handle_speech_problems for silent
-	if(!message || silent || miming || HAS_TRAIT(src, TRAIT_MUTE))
+	if(!message || silent || HAS_TRAIT(src, TRAIT_MIMING) || HAS_TRAIT(src, TRAIT_MUTE))
 		return FALSE
 
 	// Mute disability
@@ -126,7 +126,7 @@
 	var/image/I = image('icons/mob/talk.dmi', src, "[typing_indicator_type][say_test(message)]", MOB_LAYER + 1)
 	I.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA
 	I.mouse_opacity = MOUSE_OPACITY_TRANSPARENT
-	INVOKE_ASYNC(GLOBAL_PROC, .proc/flick_overlay, I, speech_bubble_recipients, 30)
+	INVOKE_ASYNC(GLOBAL_PROC, GLOBAL_PROC_REF(flick_overlay), I, speech_bubble_recipients, 30)
 
 	for(var/mob/M in listening)
 		M.hear_say(message, verb, speaking, alt_name, italics, src)

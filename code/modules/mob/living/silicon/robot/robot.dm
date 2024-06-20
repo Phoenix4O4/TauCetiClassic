@@ -77,7 +77,7 @@
 
 	spawner_args = list(/datum/spawner/living/robot)
 
-/mob/living/silicon/robot/atom_init(mapload, name_prefix = "Default", laws_type = /datum/ai_laws/nanotrasen, ai_link = TRUE, datum/religion/R)
+/mob/living/silicon/robot/atom_init(mapload, name_prefix = "Default", laws_type = /datum/ai_laws/crewsimov, ai_link = TRUE, datum/religion/R)
 	spark_system = new /datum/effect/effect/system/spark_spread()
 	spark_system.set_up(5, 0, src)
 	spark_system.attach(src)
@@ -224,6 +224,7 @@
 			module_sprites["Drone"] = "drone-service" // How does this even work...? Oh well.
 			module_sprites["Acheron"] = "mechoid-Service"
 			module_sprites["Kodiak"] = "kodiak-service"
+			module_sprites["Maid"] = "kerfusMaid"
 
 		if("Science")
 			module = new /obj/item/weapon/robot_module/science(src)
@@ -275,6 +276,7 @@
 				module_sprites["Drone"] = "drone-sec"
 				module_sprites["Acheron"] = "mechoid-Security"
 				module_sprites["Kodiak"] = "kodiak-sec"
+				module_sprites["NO ERP"] = "kerfusNoERP"
 			else
 				to_chat(src, "<span class='warning'>#Error: Safety Protocols enabled. Security module is not allowed.</span>")
 				return
@@ -292,6 +294,7 @@
 			module_sprites["Drone"] = "drone-engineer"
 			module_sprites["Acheron"] = "mechoid-Engineering"
 			module_sprites["Kodiak"] = "kodiak-eng"
+			module_sprites["Flushed"] = "kerfusFlushed"
 
 		if("Janitor")
 			module = new /obj/item/weapon/robot_module/janitor(src)
@@ -308,6 +311,7 @@
 			module = new /obj/item/weapon/robot_module/peacekeeper(src)
 			module_sprites["Marina"] = "marina-peace"
 			module_sprites["Sleak"] = "sleek-peace"
+			module_sprites["Nanotrasen"] = "kerfusNT"
 
 		if("Combat")
 			build_combat_borg()
@@ -333,6 +337,7 @@
 		icon_state = module_sprites[new_icon_state]
 
 	radio.config(module.channels)
+	radio.recalculateChannels()
 
 /mob/living/silicon/robot/proc/build_combat_borg()
 	var/mob/living/silicon/robot/combat/C = new(get_turf(src))
@@ -428,7 +433,7 @@
 	lights_on = !lights_on
 	to_chat(usr, "You [lights_on ? "enable" : "disable"] your integrated light.")
 	if(lights_on)
-		set_light(5)
+		set_light(5, 0.6)
 		playsound_local(src, 'sound/effects/click_on.ogg', VOL_EFFECTS_MASTER, 25, FALSE)
 	else
 		set_light(0)
@@ -596,7 +601,7 @@
 /mob/living/silicon/robot/attackby(obj/item/weapon/W, mob/user)
 	if (istype(W, /obj/item/weapon/handcuffs)) // fuck i don't even know why isrobot() in handcuff code isn't working so this will have to do
 		return
-		
+
 	if (user.a_intent == INTENT_HARM)
 		return ..()
 
@@ -825,7 +830,7 @@
 				laws = new /datum/ai_laws/syndicate_override
 				var/time = time2text(world.realtime,"hh:mm:ss")
 				lawchanges.Add("[time] <B>:</B> [user.name]([user.key]) emagged [name]([key])")
-				set_zeroth_law("Only [user.real_name] and people he designates as being such are Syndicate Agents.")
+				set_zeroth_law("Только [user.real_name] и люди, которых он называет таковыми, - агенты Синдиката.")
 				to_chat(src, "<span class='warning'>ALERT: Foreign software detected.</span>")
 				sleep(20)
 				playsound_local(src, 'sound/rig/shortbeep.ogg', VOL_EFFECTS_MASTER)
@@ -1188,3 +1193,19 @@
 
 /mob/living/silicon/robot/swap_hand()
 	cycle_modules()
+
+/mob/living/silicon/robot/crawl()
+	toggle_all_components()
+	to_chat(src, "<span class='notice'>You toggle all your components.</span>")
+
+/mob/living/silicon/robot/pickup_ore()
+	var/turf/simulated/floor/F = get_turf(src)
+	var/obj/item/weapon/storage/bag/ore/B
+	if(istype(module, /obj/item/weapon/robot_module/miner))
+		for(var/bag in module.modules)
+			if(istype(bag, /obj/item/weapon/storage/bag/ore))
+				B = bag
+				if(B.max_storage_space == B.storage_space_used())
+					return
+				F.attackby(B, src)
+				break

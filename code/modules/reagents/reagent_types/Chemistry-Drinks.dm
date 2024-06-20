@@ -139,6 +139,11 @@
 	description = "Absolutely nothing."
 	taste_message = "nothing... how?"
 
+/datum/reagent/consumable/drink/nothing/on_general_digest(mob/living/M)
+	..()
+	if(HAS_TRAIT(M, TRAIT_MIMING))
+		M.heal_bodypart_damage(1, 1)
+
 /datum/reagent/consumable/drink/potato_juice
 	name = "Potato Juice"
 	id = "potato"
@@ -229,7 +234,7 @@
 	name = "Hot Chocolate"
 	id = "hot_coco"
 	description = "Made with love! And cocoa beans."
-	nutriment_factor = 2
+	nutriment_factor = 1
 	color = "#403010" // rgb: 64, 48, 16
 	adj_temp = 5
 	taste_message = "chocolate"
@@ -255,6 +260,11 @@
 	M.make_jittery(5)
 	if(adj_temp > 0 && holder.has_reagent("frostoil"))
 		holder.remove_reagent("frostoil", 10 * REAGENTS_METABOLISM)
+
+	if(!iscarbon(M))
+		return
+	var/mob/living/carbon/C = M
+	C.AdjustClumsyStatus(-2)
 
 /datum/reagent/consumable/drink/coffee/icecoffee
 	name = "Iced Coffee"
@@ -603,20 +613,27 @@
 
 /datum/reagent/consumable/neurotoxin/on_general_digest(mob/living/M)
 	..()
-	M.Stun(3)
-	M.Weaken(3)
-	if(!data["ticks"])
+	if(data["ticks"])
+		data["ticks"]++
+	else
 		data["ticks"] = 1
-	data["ticks"]++
-	M.dizziness += 6
-	if(data["ticks"] >= 15 && data["ticks"] < 45)
-		M.AdjustStuttering(4)
-	else if(data["ticks"] >= 45 && prob(50) && data["ticks"] <55)
-		M.AdjustConfused(3)
-	else if(data["ticks"] >=55)
-		M.adjustDrugginess(5)
-	else if(data["ticks"] >=200)
-		M.adjustToxLoss(2)
+
+	M.make_dizzy(6)
+	switch(data["ticks"])
+		if(1 to 5)
+			M.make_jittery(20)
+			M.Stuttering(4)
+		if(5 to 45)
+			M.Stun(3)
+			M.Weaken(3)
+		if(45 to 200)
+			M.Stun(3)
+			M.Weaken(3)
+			M.adjustDrugginess(5)
+		if(200 to INFINITY)
+			M.Stun(3)
+			M.Weaken(3)
+			M.adjustToxLoss(2)
 
 /datum/reagent/consumable/hippies_delight
 	name = "Hippies' Delight"
@@ -1206,13 +1223,13 @@
 	description = "Deny drinking this and prepare for THE LAW."
 	reagent_state = LIQUID
 	color = "#664300" // rgb: 102, 67, 0
-	boozepwr = 4
+	boozepwr = 6
 	taste_message = "THE LAW"
 
 /datum/reagent/consumable/ethanol/beepsky_smash/on_general_digest(mob/living/M)
 	..()
 	if(!HAS_TRAIT(M, TRAIT_ALCOHOL_TOLERANCE))
-		M.Stun(10)
+		M.MakeConfused(3)
 
 /datum/reagent/consumable/ethanol/irish_cream
 	name = "Irish Cream"
@@ -1570,6 +1587,11 @@
 	color = "#664300" // rgb: 102, 67, 0
 	boozepwr = 4
 	taste_message = "mphhhh"
+
+/datum/reagent/consumable/ethanol/silencer/on_general_digest(mob/living/M)
+	..()
+	if(HAS_TRAIT(M, TRAIT_MIMING))
+		M.heal_bodypart_damage(1, 1)
 
 /datum/reagent/consumable/ethanol/silencer/on_general_digest(mob/living/M)
 	..()

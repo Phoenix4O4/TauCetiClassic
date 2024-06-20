@@ -14,24 +14,13 @@
 
 	handle_combat()
 
+	handle_nutrition()
+
 	if(client)
 		handle_regular_hud_updates()
-
-/mob/living/proc/handle_actions()
-	//Pretty bad, i'd use picked/dropped instead but the parent calls in these are nonexistent
-	for(var/datum/action/A in actions)
-		if(A.CheckRemoval(src))
-			A.Remove(src)
-	for(var/obj/item/I in src)
-		if(I.action_button_name)
-			if(!I.action)
-				if(I.action_button_is_hands_free)
-					I.action = new/datum/action/item_action/hands_free
-				else
-					I.action = new/datum/action/item_action
-				I.action.name = I.action_button_name
-				I.action.target = I
-			I.action.Grant(src)
+		var/turf/T = get_turf(src)
+		if(T && last_z != T.z)
+			update_z(T.z)
 
 /mob/living/proc/update_health_hud()
 	if(!healths)
@@ -65,8 +54,6 @@
 		return
 
 	handle_vision()
-	handle_actions()
-	update_action_buttons()
 	update_health_hud()
 
 	pullin?.update_icon(src)
@@ -89,18 +76,16 @@
 
 	if(vision_for_dead || stat != DEAD)
 		if(blinded)
-			throw_alert("blind", /atom/movable/screen/alert/blind)
 			overlay_fullscreen("blind", /atom/movable/screen/fullscreen/blind)
 		else if(is_vision_obstructed() && !(XRAY in mutations))
 			overlay_fullscreen("blind", /atom/movable/screen/fullscreen/blind)
 		else
-			clear_alert("blind")
 			clear_fullscreen("blind", 0)
 		if(machine)
 			if (!(machine.check_eye(src)))
 				reset_view(null)
 		else
-			if(!client.adminobs && !force_remote_viewing)
+			if(!client?.adminobs && !force_remote_viewing)
 				reset_view(null)
 
 
@@ -156,3 +141,6 @@
 			hud_used.hide_actions_toggle.screen_loc = hud_used.ButtonNumberToScreenCoords(button_number+1)
 			//hud_used.SetButtonCoords(hud_used.hide_actions_toggle,button_number+1)
 		client.screen += hud_used.hide_actions_toggle
+
+/mob/living/proc/handle_nutrition()
+	return

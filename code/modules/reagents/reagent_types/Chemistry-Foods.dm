@@ -288,7 +288,7 @@
 	id = "hot_coco"
 	description = "Made with love! And cocoa beans."
 	reagent_state = LIQUID
-	nutriment_factor = 4
+	nutriment_factor = 1
 	color = "#403010" // rgb: 64, 48, 16
 	taste_message = "chocolate"
 	diet_flags = DIET_PLANT
@@ -332,6 +332,11 @@
 			if(prob(30))
 				M.emote(pick("twitch","giggle"))
 	data["ticks"]++
+
+/datum/reagent/consumable/psilocybin/on_skrell_digest(mob/living/M)
+	M.adjustDrugginess(3)
+	M.nutrition += 10 * REM
+	return FALSE
 
 /datum/reagent/consumable/cornoil
 	name = "Corn Oil"
